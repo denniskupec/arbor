@@ -1,6 +1,7 @@
 
 package nu.baud.arbor
 
+import com.gmail.nossr50.config.experience.ExperienceConfig
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
@@ -11,10 +12,15 @@ import org.bukkit.inventory.PlayerInventory
 import org.bukkit.event.Listener
 import org.bukkit.event.EventHandler
 import org.bukkit.event.block.BlockBreakEvent
+import com.gmail.nossr50.util.player.UserManager
+import com.gmail.nossr50.datatypes.player.McMMOPlayer
+import com.gmail.nossr50.datatypes.skills.SkillType
+import com.gmail.nossr50.datatypes.skills.XPGainReason
+import org.bukkit.event.EventPriority
 
 object TreeListener : Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     fun blockBreak(ev: BlockBreakEvent) {
         val player: Player = ev.player
         val block: Block = ev.block
@@ -47,7 +53,6 @@ object TreeListener : Listener {
                 treeFell(above.block, player)
 
                 val dura: Short = (inv.itemInMainHand.durability + 1).toShort()
-
                 if (dura > inv.itemInMainHand.type.maxDurability) {
                     inv.remove(inv.itemInMainHand)
                     player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1.0F, 1.0F)
@@ -55,6 +60,9 @@ object TreeListener : Listener {
                 else {
                     inv.itemInMainHand.durability = dura
                 }
+
+                val xp: Int = ExperienceConfig.getInstance().getXp(SkillType.WOODCUTTING, block.state.data)
+                UserManager.getPlayer(player).beginXpGain(SkillType.WOODCUTTING, xp.toFloat(), XPGainReason.PVE)
             }
             else -> return
         }
