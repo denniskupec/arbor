@@ -1,3 +1,5 @@
 name: Arbor
 version: 1.0.0
 main: nu.baud.arbor.Arbor
+depends:
+  - mcMMO
